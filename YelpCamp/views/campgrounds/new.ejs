@@ -1,0 +1,33 @@
+<% layout('layouts/boilerplate') %>
+    <div class="col-6 offset-3">
+        <h1>Add newCampground</h1>
+        <form class="needs-validation" action="/campgrounds" method="POST" novalidate>
+            <div class="input-group mb-3">
+                <input class="form-control" type="text" placeholder="title" name="campground[title]" required>
+                <div class="valid-feedback">Looks good!</div>
+                <div class="invalid-feedback">Please provide a valid title.</div>
+            </div>
+
+            <div class="input-group mb-3">
+                <input class="form-control" type="text" placeholder="location" name="campground[location]" required>
+                <div class="valid-feedback">Looks good!</div>
+                <div class="invalid-feedback">Please provide a valid location.</div>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">$</span>
+                <input class="form-control" type="number" placeholder="0.00" name="campground[price]" required>
+                <div class="valid-feedback">Looks good!</div>
+                <div class="invalid-feedback">Please provide a valid price.</div>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">Description</span>
+                <textarea class="form-control" rows="5" name="campground[description]" required></textarea>
+                <div class="valid-feedback">Looks good!</div>
+                <div class="invalid-feedback">Please provide a valid description.</div>
+            </div>
+            <button class="btn btn-outline-success" type="submit">add</button>
+            <a href="/campgrounds" class="btn btn-outline-danger">cancel</a>
+        </form>
+    </div>
