@@ -1,7 +1,7 @@
 <% layout('layouts/boilerplate') %>
     <div class="col-6 offset-3">
         <h1>Add newCampground</h1>
-        <form class="needs-validation" action="/campgrounds" method="POST" novalidate>
+        <form class="needs-validation" action="/campgrounds" method="POST" novalidate enctype="multipart/form-data">
             <div class="input-group mb-3">
                 <input class="form-control" type="text" placeholder="title" name="campground[title]" required>
                 <div class="valid-feedback">Looks good!</div>
@@ -12,6 +12,11 @@
                 <input class="form-control" type="text" placeholder="location" name="campground[location]" required>
                 <div class="valid-feedback">Looks good!</div>
                 <div class="invalid-feedback">Please provide a valid location.</div>
+            </div>
+
+
+            <div class="input-group mb-3">
+                <input type="file" class="form-control" id="inputGroupFile01" name="image" multiple>
             </div>
 
             <div class="input-group mb-3">
