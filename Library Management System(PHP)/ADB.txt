@@ -1,0 +1,154 @@
+/* create DataBase with name librsry*/
+
+create database  if not exists library;
+
+use library;
+
+create table  Book_Details(
+Book_id int primary key not null,
+Book_name varchar(100)not null,
+Author_name varchar(100)not null,
+Book_language varchar(100)not null,
+Publication_year year not null,
+No_Copies_Actual int not null,  
+No_Copies_Current int not null,  
+Category_name varchar(50) not null
+);
+
+CREATE TABLE Borrower_Details  
+(  
+    Borrower_Id int PRIMARY KEY auto_increment, 
+    Book_Id int not null,  
+    Student_id int not null,
+    Borrowed_From date not null,  
+    Borrowed_TO date not null,  
+    Manger_Id  varchar(20) not null  
+);
+
+alter table Borrower_Details
+add constraint book_borrow_fk foreign key(Book_Id) references Book_Details(Book_id);
+
+CREATE TABLE Manger_Details  
+(  
+    Manger_Id varchar(20) PRIMARY KEY,  
+    Manger_Name varchar(50) not null,  
+    Manger_Password varbinary(200) not null
+);
+
+alter table Borrower_Details
+add constraint manger_borrow_fk foreign key(Manger_Id) references Manger_Details(Manger_Id);
+
+Create TABLE Student_Details  
+(  
+    Student_Id int PRIMARY KEY,  
+    Student_Name varchar(50),  
+    Student_Gender Varchar(20),
+    Student_Password varbinary(200),
+    Student_Tax int default 0
+);
+
+alter table Borrower_Details
+add constraint student_borrow_fk foreign key(Student_id) references Student_Details(Student_Id);
+
+
+create table History_Detalis(
+Student_id int,
+Borrower_id int,
+Book_id int,
+Action_date date,
+Action_name varchar(10),
+Manger_id varchar(20)
+);
+
+alter table History_Detalis
+add constraint history_action_fk foreign key(Student_id) references Student_Details(Student_Id);
+
+delimiter %
+create trigger Book_Returned
+before delete on Borrower_Details for each row
+begin
+declare manger varchar(20);
+if (HOUR(CURRENT_TIME()) >= 18) then
+		set @manger = 'Kareem';
+else if (HOUR(CURRENT_TIME()) >= 12) then
+		set @manger = 'Shnawi';
+else if (HOUR(CURRENT_TIME()) >= 6) then
+		set @manger = 'Tal3t';
+else
+		set  @manger = 'Mokn3';
+  END IF;
+ END IF;
+END IF;
+insert into History_Detalis values(old.Student_id,old.Borrower_Id,old.Book_id,current_date(),'Return', @manger);
+if(current_date() - old.Borrowed_TO> 0)
+	then update Student_Details set Student_Tax = Student_Tax + 10 where Student_Id=old.Student_id;
+end if;
+update Book_Details set No_Copies_Current = No_Copies_Current + 1 where Book_id=old.Book_id;
+end%
+delimiter ;
+
+delimiter %
+create trigger Book_Borrowed_B
+before insert on Borrower_Details for each row
+begin
+set new.Borrowed_From =current_date();
+set new.Borrowed_TO =date_add(current_date(),interval 7 day);
+
+if (HOUR(CURRENT_TIME()) >= 18) then
+		set new.Manger_Id = 'Kareem';
+else if (HOUR(CURRENT_TIME()) >= 12) then
+		set new.Manger_Id = 'Shnawi';
+else if (HOUR(CURRENT_TIME()) >= 6) then
+		set new.Manger_Id = 'Tal3t';
+else
+		set new.Manger_Id = 'Mokn3';
+  END IF;
+ END IF;
+END IF;
+end%
+delimiter ;
+
+
+delimiter %
+create trigger Book_Borrowed_A
+after insert on Borrower_Details for each row
+begin
+insert into History_Detalis values(new.Student_id,new.Borrower_Id,new.Book_id,current_date(),'Borrow',new.Manger_Id);
+update Book_Details set No_Copies_Current = No_Copies_Current - 1 where Book_id=new.Book_id;
+end%
+delimiter ;
+
+delimiter %
+create trigger Student_Delete
+before delete on Student_Details for each row
+begin
+delete from history_detalis where Student_id = old.Student_Id;
+end %
+delimiter ;
+
+delimiter %
+create trigger Encrypt_Password_Student
+before insert on Student_Details for each row
+begin
+	set new.Student_Password=AES_ENCRYPT(new.Student_Password,'DataEncryptStudent');
+end %
+delimiter ;
+
+delimiter %
+create trigger Encrypt_Password_Manger
+before insert on manger_details for each row
+begin
+	set new.Manger_Password=AES_ENCRYPT(new.Manger_Password,'DataEncryptManger');
+end %
+delimiter ;
+
+insert into Manger_Details values('Tal3t','Mostafa Tal3t','6324919mMm');
+insert into Manger_Details values('Shnawi','Ma7moud Mo7amed','12345');
+insert into Manger_Details values('Mokn3','Mostafa Mokn3','12345');
+insert into Manger_Details values('Kareem','Kareem Khaled','12345');
+
+select * from Book_Details;
+select * from Borrower_Details;
+select * from Manger_Details;
+select * from Student_Details;
+select * from history_detalis;
